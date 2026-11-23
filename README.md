@@ -268,7 +268,8 @@ solo2stack/      path resolution shared by every script
 
 ## 7. License
 
-The code in this repository is MIT-licensed; see `LICENSE`.
+The code in this repository is licensed under the BSD 3-Clause License;
+see `LICENSE`.
 
 Two dependencies are not covered by it and are not included here, as `NOTICE`
 records. **PACT** is GPL-3.0; `pact/fetch_pact.sh` clones it from upstream and

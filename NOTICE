@@ -1,14 +1,14 @@
 Solo2Stack
-Copyright (c) 2026 Bo-Han Lai and Vidya A. Chhabria
+Copyright (c) 2026, ASU-VDA-Lab
 
-The MIT licence in LICENSE covers the code in this repository. Two
-dependencies are not included here and are not covered by it.
+The BSD 3-Clause licence in LICENSE covers the code in this repository.
+Two dependencies are not included here and are not covered by it.
 
 PACT
     PACT is third-party code under GPL-3.0 and is NOT included in this
     repository; pact/fetch_pact.sh clones it from upstream, where it carries
     its own LICENSE. The patch in pact/solo2stack.patch is a modification of
-    that GPL-3.0 code and stays under PACT's licence, not the MIT licence.
+    that GPL-3.0 code and stays under PACT's licence, not the BSD licence.
     Anyone redistributing the patched PACT tree is bound by GPL-3.0.
     See pact/README.md.
 

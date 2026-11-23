@@ -20,10 +20,10 @@ here. This directory ships only the patch:
 
 `solo2stack.patch` is a modification of PACT, which is licensed under
 **GPL-3.0**. The patch is therefore a derivative of GPL-3.0 code and stays
-under PACT's licence — the MIT licence in this repository's root `LICENSE`
-covers the rest of the repository but does **not** cover this patch or the PACT
-checkout that `fetch_pact.sh` creates. Anyone redistributing the patched PACT
-tree is bound by GPL-3.0.
+under PACT's licence — the BSD 3-Clause licence in this repository's root
+`LICENSE` covers the rest of the repository but does **not** cover this patch
+or the PACT checkout that `fetch_pact.sh` creates. Anyone redistributing the
+patched PACT tree is bound by GPL-3.0.
 
 ## The solver
 
