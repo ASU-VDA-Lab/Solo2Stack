@@ -259,9 +259,10 @@ column is the 20,000-stack figure.
   concurrently, so the wall time is one solo solve plus one inference. This is
   the convention Fig. 1 plots.
 * Sweep = `full_stack_s / (solo_s × chiplets/stacks_per_depth + infer_s)`
-  = `full_stack_s / 1.090 s`: the 500 solo solves are shared across the 4,000
-  stacks of each depth, i.e. 20,000 stacks at five cooling conditions. At four
-  dies that is 1,882.9 h of full-stack PACT against 6.03 h of solo solves.
+  = `full_stack_s / 1.090 s`: 2,500 solo simulations (500 chiplets under 5
+  cooling conditions) are shared across all stacks — 4,000 stacks per depth
+  at five cooling conditions, i.e. 20,000 cases. At four dies that is
+  1,882.9 h of full-stack PACT against 6.03 h of solo solves.
 * Dataset-level, building all 60,000 cases: **543.7×**
   (11,948,800 s full-stack against 21,712.5 s of solo solves).
 

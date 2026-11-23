@@ -22,8 +22,8 @@ without the solo input (A1).
 Against a full-stack PACT solve of one unseen four-die stack, Solo2Stack is
 **9.8x** faster when the solo simulations run sequentially and **39.0x** faster
 when they run in parallel, and **311x** faster over a sweep of 20,000 four-die
-stacks, where the 500 solo simulations are shared. These are measured runtimes,
-not a cost estimate.
+stacks, where 2,500 solo simulations (500 chiplets under 5 cooling conditions)
+are shared across all stacks. These are measured runtimes, not a cost estimate.
 
 ---
 
