@@ -19,19 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party components
-
-The MIT licence above covers the code in this repository. Two dependencies are
-not included here and are not covered by it:
-
-* PACT is third-party code under GPL-3.0 and is NOT included in this
-  repository; pact/fetch_pact.sh clones it from upstream, where it carries its
-  own licence. The patch in pact/solo2stack.patch is a modification of that
-  GPL-3.0 code and stays under PACT's licence, not the MIT licence above.
-  See pact/README.md.
-
-* FloorSet is likewise not included; see data_gen/floorset/README.md for its
-  licence and citation.

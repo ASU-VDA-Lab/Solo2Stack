@@ -97,7 +97,7 @@ in the published table.
 
 * Pat. MAE, R²_pat, Abs. MAE, Offset MAE and Hotspot are `aggregate_cv.py`
   per-stack means (every test stack weighted equally), then averaged over the
-  ten folds. This is the published Table III estimator.
+  ten folds. This is the estimator Table IV uses.
 * **Max is the true global maximum** over every cell of every valid layer of
   every test stack (`eval_global.py`). `aggregate_cv.py`'s `max_k` is a mean of
   per-slice maxima and understates the real maximum by 1.6–1.9×; it is not used
@@ -107,7 +107,7 @@ in the published table.
   that way. Decided 2026-11-08: the paper defines pooled linear metrics as
   averages over valid layers and test stacks, and defines only Max as a global
   maximum, so the published estimator is the internally consistent choice and
-  Table III is not switched to a global p99. The global values below are
+  Table IV is not switched to a global p99. The global values below are
   recorded for reference only and are **not** used anywhere in the paper:
 
 | Arm | p99, published estimator | p99, true global |
@@ -117,7 +117,7 @@ in the published table.
 | A1 | 1.4406 ± 0.0246 | 1.6674 ± 0.0417 |
 | **Solo2Stack** | 0.9368 ± 0.0494 | 1.4440 ± 0.0813 |
 
-  Table III therefore carries two kinds of statistic by design, not by
+  Table IV therefore carries two kinds of statistic by design, not by
   oversight: the linear metrics and p99 are pooled averages over valid layers
   and test stacks, while Max is a global maximum, which is the only way a
   maximum can be defined. The reference column differs from the printed one by
@@ -145,7 +145,7 @@ Pat. MAE and p99 both grow monotonically from bottom to top; I34 carries the
 stack's global maximum (see below). Offset MAE falls sharply with height — the
 top layers sit closest to the convective boundary, where the analytic offset is
 most accurate. Max is the true global per-layer maximum, same estimator as
-Table III, so the I34 row equals Table III's Solo2Stack Max exactly.
+Table IV, so the I34 row equals Table IV's Solo2Stack Max exactly.
 
 ## Table VI — Transfer to held-out conditions (pattern R², fold 0)
 
@@ -243,19 +243,25 @@ Solo characterisation 8.685 s per chiplet, batch-1 inference 4.39 ms.
 | 3 dies | 183.41 |
 | 4 dies | 338.92 |
 
-**Speedups**
+**Speedups.** Three conventions, each answering a different question. The
+paper's single-stack numbers are the sequential and parallel columns; the sweep
+column is the 20,000-stack figure.
 
-| Depth | Single-stack | Full-sweep (amortised) |
-|---|---|---|
-| 2 dies | 4.32× | 68.9× |
-| 3 dies | 7.04× | 168.3× |
-| **4 dies** | **9.75×** | **310.9×** |
+| Depth | Sequential solo | Parallel solo | Sweep (amortised) |
+|---|---|---|---|
+| 2 dies | 4.32× | 8.64× | 68.9× |
+| 3 dies | 7.04× | 21.11× | 168.3× |
+| **4 dies** | **9.75×** | **39.00×** | **310.9×** |
 
-* Single-stack = `full_stack_s / (N × solo_s + infer_s)`: one solo solve per
-  die, nothing shared. The pessimistic reading.
-* Full-sweep = `full_stack_s / (solo_s × chiplets/stacks_per_depth + infer_s)`
+* Sequential solo = `full_stack_s / (N × solo_s + infer_s)`: one solo solve per
+  die, run one after another, nothing shared. The pessimistic reading.
+* Parallel solo = `full_stack_s / (solo_s + infer_s)`: the N solo solves run
+  concurrently, so the wall time is one solo solve plus one inference. This is
+  the convention Fig. 1 plots.
+* Sweep = `full_stack_s / (solo_s × chiplets/stacks_per_depth + infer_s)`
   = `full_stack_s / 1.090 s`: the 500 solo solves are shared across the 4,000
-  stacks of each depth.
+  stacks of each depth, i.e. 20,000 stacks at five cooling conditions. At four
+  dies that is 1,882.9 h of full-stack PACT against 6.03 h of solo solves.
 * Dataset-level, building all 60,000 cases: **543.7×**
   (11,948,800 s full-stack against 21,712.5 s of solo solves).
 
@@ -331,9 +337,9 @@ star throughout.
 | **Solo2Stack (A3)** | **0.799987 ± 0.021691** | **8.68939** |
 | Full-stack PACT | 1.0 (reference) | **338.915** |
 
-* 8.68939 s = one solo simulation (8.685 s) + one batch-1 inference (4.39 ms),
-  the published convention. Solo2Stack is 39.00× faster than full-stack PACT
-  at four dies on this convention.
+* 8.68939 s = one solo simulation (8.685 s) + one batch-1 inference (4.39 ms):
+  the parallel-solo convention, where the four solo solves run concurrently.
+  Solo2Stack is 39.00× faster than full-stack PACT at four dies on it.
 * 338.915 s is the mean PACT wall time over four-die stacks only, averaged over
   microbump and hybrid (241.985 / 435.845 s).
 * **No arrow, connector or shared-cost marker appears on this figure, and no

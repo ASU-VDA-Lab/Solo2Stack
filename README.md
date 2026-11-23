@@ -10,11 +10,20 @@ cooling condition, and predicts the steady-state temperature field of every
 layer of the assembled stack. Two design choices carry the result: the solo
 fields as input, and an *analytic residual* target — the network predicts the
 departure from a closed-form uniform-spreading estimate rather than absolute
-temperature. On a 60,000-sample campaign (12,000 stacks of 2, 3 and 4 dies x 5
-cooling conditions, microbump and hybrid bonding, 10-fold cross-validation over
-disjoint chiplet groups) Solo2Stack reaches a pattern R² of 0.85 against PACT,
-against 0.70 for the same network without the solo input, at roughly 39x lower
-cost than a full-stack solve.
+temperature.
+
+The campaign is 12,000 stack configurations — 2, 3 and 4 dies, microbump and
+hybrid bonding — under 5 cooling conditions, which the paper counts as 60,000
+stacks, with 10-fold cross-validation over disjoint chiplet groups. On unseen
+chiplets Solo2Stack reaches a pattern R² of **0.852 ± 0.016**, against
+**0.291** without the solo input and the residual target (A0) and **0.697**
+without the solo input (A1).
+
+Against a full-stack PACT solve of one unseen four-die stack, Solo2Stack is
+**9.8x** faster when the solo simulations run sequentially and **39.0x** faster
+when they run in parallel, and **311x** faster over a sweep of 20,000 four-die
+stacks, where the 500 solo simulations are shared. These are measured runtimes,
+not a cost estimate.
 
 ---
 
@@ -70,8 +79,10 @@ patch is. See `pact/README.md` for what the patch changes and why.
 ## 4. Pipeline, in order
 
 Each step writes where `configs/paths.yaml` says. Sizes are for the published
-campaign; the simulation steps are the expensive ones (tens of thousands of
-CPU-hours), so in practice you run them once and keep the packed arrays.
+campaign. The simulation steps are the expensive ones — generating labels for
+all 60,000 stacks takes about 3,300 CPU-hours — so in practice you run them
+once and keep the packed arrays. Training one model takes about 5 GPU-hours,
+47 for all ten folds.
 
 ### 4.1 Download FloorSet and build the chiplet library
 
@@ -259,8 +270,8 @@ solo2stack/      path resolution shared by every script
 
 The code in this repository is MIT-licensed; see `LICENSE`.
 
-Two dependencies are not covered by it and are not included here. **PACT** is
-GPL-3.0; `pact/fetch_pact.sh` clones it from upstream and the patch in
-`pact/solo2stack.patch` stays under PACT's licence (see `pact/README.md`).
-**FloorSet** has its own licence and citation requirement, documented in
-`data_gen/floorset/README.md`.
+Two dependencies are not covered by it and are not included here, as `NOTICE`
+records. **PACT** is GPL-3.0; `pact/fetch_pact.sh` clones it from upstream and
+the patch in `pact/solo2stack.patch` stays under PACT's licence (see
+`pact/README.md`). **FloorSet** has its own licence and citation requirement,
+documented in `data_gen/floorset/README.md`.
