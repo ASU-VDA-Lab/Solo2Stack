@@ -1,0 +1,17 @@
+# Building the chiplet library from FloorSet-Lite
+# (data_gen/floorset/build_chiplet_library.py).
+#
+# FloorSet's dataloader is a torch dataset, so this step needs torch even
+# though no model is trained here; CPU-only is enough.  torch >= 2.0 requires
+# Python >= 3.8, so this cannot share the Python 3.6 PACT environment.
+#
+#   python3.11 -m venv ~/venvs/s2s_floorset
+#   ~/venvs/s2s_floorset/bin/pip install --index-url https://download.pytorch.org/whl/cpu torch
+#   ~/venvs/s2s_floorset/bin/pip install -r requirements-floorset.txt
+torch>=2.0.0
+numpy>=1.24.0
+pandas>=1.5.0
+matplotlib>=3.7.0
+shapely>=2.0.0
+tqdm>=4.60.0
+requests>=2.28.0

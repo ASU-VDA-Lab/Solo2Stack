@@ -1,0 +1,42 @@
+# --- machine-specific configuration ---------------------------------------
+configs/paths.yaml
+
+# --- data, labels, checkpoints: never committed ---------------------------
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.grid.steady*
+*.lcf.csv
+data/
+datasets/
+outputs/
+output_stack*/
+workdirs*/
+floorset_pipeline_out/
+LiteTensorDataTest/
+PrimeTensorData*/
+
+# --- the PACT clone made by pact/fetch_pact.sh ----------------------------
+pact/PACT/
+
+# --- logs and run artefacts -----------------------------------------------
+logs/
+*.log
+*.out
+nohup.out
+slurm-*.out
+
+# --- python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# --- editors / os ---------------------------------------------------------
+.DS_Store
+*.swp

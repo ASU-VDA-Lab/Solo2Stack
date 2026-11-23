@@ -1,0 +1,39 @@
+# Solo2Stack external paths.  Copy to configs/paths.yaml and edit.
+# Flat "key: value" only -- see solo2stack/miniyaml.py.
+# Everything inside the repository is addressed relative to the repo root and
+# does NOT appear here.
+
+# --- packed datasets -------------------------------------------------------
+# Root holding pact_stack_{2,3,4}L for the microbump+hybrid campaign.
+data_root: /path/to/mbhb
+# Same layout at the two extra lateral resolutions used by the grid study.
+data_root_g300: /path/to/g300
+data_root_g500: /path/to/g500
+
+# --- raw PACT outputs and the chiplet library ------------------------------
+# Tree holding Test_Hetero, Test_Hetero_3L, Test_Hetero_4L (raw .grid.steady).
+pact_runs: /path/to/PACT
+# Single-chiplet ("solo") PACT outputs.
+solo_runs: /path/to/PACT/Test_Hetero/intelfloorset_output_files
+# Chiplet library produced by data_gen/floorset/build_chiplet_library.py.
+chiplet_library: /path/to/PACT/Test_Hetero/floorset_pipeline_out
+# Where the FloorSet-Lite dataset and the iccad2026contest package are.
+floorset_root: /path/to/FloorSet
+
+# --- training and evaluation ----------------------------------------------
+cv_dir: /path/to/cv_mbhb                 # cv_folds.json + norm_cv/
+checkpoints: /path/to/cv_mbhb/runs       # <arm>_fold<k>/best.pt
+cv_dir_g300: /path/to/cv300_mbhb
+cv_dir_g500: /path/to/cv500_mbhb
+transfer_dir: /path/to/transfer_mbhb
+# optional, only for eval/agg_transfer.py's comparison against the
+# optional: the earlier three-technology transfer runs, not shipped here
+# transfer_dir_old: /path/to/transfer_old
+eval_global: /path/to/eval_global
+pact_src: /path/to/Solo2Stack/pact/PACT     # the checkout fetch_pact.sh makes
+results: /path/to/final_stats            # where eval scripts write
+
+# --- interpreters and hosts -------------------------------------------------
+pact_python: /path/to/pact-venv/bin/python      # Python 3.6 env for PACT
+ml_python: /path/to/thermalstack/bin/python     # Python 3.10 env for torch
+gpu_host: localhost                             # host used by the ds500 driver

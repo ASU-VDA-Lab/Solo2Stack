@@ -1,0 +1,224 @@
+diff --git a/src/Layer.py b/src/Layer.py
+index 652d458..a658584 100755
+--- a/src/Layer.py
++++ b/src/Layer.py
+@@ -19,18 +19,31 @@ class Layer:
+     def create_flp_df(self, flp_file, defaultConfigFile, virtual_node_locations):
+         flp_df = pd.read_csv(flp_file)
+         self.flp_file = flp_file
+-        self.flp_df = flp_df.sort_values(['Y', 'X'], ascending=True)
+-        if (self.flp_df.iloc[0].X != 0):
+-            self.flp_df['X'] = self.flp_df['X'] - min(self.flp_df['X'])
+-        if (self.flp_df.iloc[0].Y != 0):
+-            self.flp_df['Y'] = self.flp_df['Y'] - min(self.flp_df['Y'])
+-        self.length = self.flp_df.iloc[-1].X + \
+-            self.flp_df.iloc[-1]['Length (m)']
+-        self.width = self.flp_df.iloc[-1].Y + self.flp_df.iloc[-1]['Width (m)']
++
++        # Sort for reproducibility only
++        self.flp_df = flp_df.sort_values(['Y', 'X'], ascending=True).reset_index(drop=True)
++
++        # Normalize coordinates so that the lower-left corner starts at (0, 0)
++        x_min = float(self.flp_df["X"].min())
++        y_min = float(self.flp_df["Y"].min())
++
++        if x_min != 0.0:
++            self.flp_df["X"] = self.flp_df["X"] - x_min
++        if y_min != 0.0:
++            self.flp_df["Y"] = self.flp_df["Y"] - y_min
++
++        # IMPORTANT:
++        # Use the bounding box, not the last row, to compute chip dimensions.
++        self.length = float((self.flp_df["X"] + self.flp_df["Length (m)"]).max())
++        self.width = float((self.flp_df["Y"] + self.flp_df["Width (m)"]).max())
++
++        self.length = round(self.length, 20)
++        self.width = round(self.width, 20)
++
+         self.flp_df["ConfigFile"].fillna(defaultConfigFile, inplace=True)
+-        virtual_nodes = [virtual_node_locations[x]
+-                         for x in flp_df['Label'].unique()]
+-        if("center_center" in virtual_nodes):
++
++        virtual_nodes = [virtual_node_locations[x] for x in flp_df['Label'].unique()]
++        if "center_center" in virtual_nodes:
+             self.virtual_node = "center_center"
+         else:
+             self.virtual_node = "bottom_center"
+diff --git a/src/PACT.py b/src/PACT.py
+index a678379..f558988 100755
+--- a/src/PACT.py
++++ b/src/PACT.py
+@@ -344,11 +344,11 @@ dict_virtual_nodes = {
+     chipStack.Layers_data[x].layer_num: chipStack.Layers_data[x].virtual_node for x in chipStack.Layers_data.keys()}
+ # Ensure there is no singular R matrix
+ for key, value in dict_Rx.items():
+-    value[value == 0.0] = 1e-6
++    value[value == 0.0] = 0.0077 #1e-6
+ for key, value in dict_Ry.items():
+-    value[value == 0.0] = 1e-6
++    value[value == 0.0] = 0.0077 #1e-6
+ for key, value in dict_Rz.items():
+-    value[value == 0.0] = 1e-6
++    value[value == 0.0] = 0.0077 #1e-6
+ solver_properties['Rx'] = dict_Rx
+ solver_properties['Ry'] = dict_Ry
+ solver_properties['Rz'] = dict_Rz
+diff --git a/src/SuperLUSolver.py b/src/SuperLUSolver.py
+index 0784efb..cfb13e4 100755
+--- a/src/SuperLUSolver.py
++++ b/src/SuperLUSolver.py
+@@ -1,8 +1,16 @@
+-import sys
++"""Steady-state solver: SciPy's sparse LU (SuperLU).
++
++PACT assembles the thermal conductance matrix; this module factorises it with
++scipy.sparse.linalg.splu using the same options PACT upstream selected
++(permc_spec="MMD_AT_PLUS_A", SymmetricMode=True, diag_pivot_thresh=0.001) and
++adds a per-solve statistics record (fill, relative residual, peak RSS) written
++to the file named by the PACT3L_STATS environment variable when it is set.
++"""
++
+ import numpy as np
+ from scipy.sparse import csc_matrix, linalg as sla, coo_matrix, csr_matrix
+ import math
+-
++import os
+ 
+ class SuperLUSolver:
+     def __init__(self, name):
+@@ -68,6 +76,7 @@ class SuperLUSolver:
+         self.C = self.dict_properties['C']
+         self.I = self.dict_properties['I']
+         self.r_amb_reciprocal = 1/self.r_amb
++
+         self.b = []
+         for key, value in self.I.items():
+             mean_value = np.average(value, axis=0)
+@@ -82,39 +91,45 @@ class SuperLUSolver:
+         elif(mode == 'temperature_dependent'):
+             self.dict_properties_update = dict_properties
+             self.update()
++
+         curidx = 0
+         for grididx in range(self.size):
+             layer = int(grididx / self.prod)
+             row = int((grididx - layer*self.prod)/self.nc)
+             col = int(grididx - (layer*(self.prod)+row*self.nc))
++
+             if (col > 0):
+                 Rw = self.Rx[layer][row][col-1]/2 + self.Rx[layer][row][col]/2
+             else:
+                 Rw = math.inf
++
+             if(col < (self.col_limit)):
+                 Re = self.Rx[layer][row][col+1]/2 + self.Rx[layer][row][col]/2
+             else:
+                 Re = math.inf
++
+             if(row > 0):
+                 Rn = self.Ry[layer][row-1][col]/2 + self.Ry[layer][row][col]/2
+             else:
+                 Rn = math.inf
++
+             if(row < self.row_limit):
+                 Rs = self.Ry[layer][row+1][col]/2 + self.Ry[layer][row][col]/2
+             else:
+                 Rs = math.inf
++
+             if(layer > 0):
+                 Ra = int(self.factorVN[self.layerVN[layer-1]])*self.Rz[layer-1][row][col] + \
+-                        (1-int(self.factorVN[self.layerVN[layer]])
+-                         )*self.Rz[layer][row][col]
++                        (1-int(self.factorVN[self.layerVN[layer]]))*self.Rz[layer][row][col]
+             else:
+                 Ra = math.inf
++
+             if(layer < self.layer_limit):
+                 Rb = int(self.factorVN[self.layerVN[layer]])*self.Rz[layer][row][col] + \
+-                        (1-int(self.factorVN[self.layerVN[layer+1]])
+-                         )*self.Rz[layer+1][row][col]
++                        (1-int(self.factorVN[self.layerVN[layer+1]]))*self.Rz[layer+1][row][col]
+             else:
+                 Rb = math.inf
++
+             dia_val = 0
+             for val_idx, val in enumerate([Re, Rw, Rn, Rs, Ra, Rb]):
+                 if(val != math.inf):
+@@ -123,17 +138,71 @@ class SuperLUSolver:
+                     self.cooData[curidx] = -1.0/val
+                     curidx += 1
+                     dia_val += 1.0/val
++
+             self.cooX[curidx] = grididx
+             self.cooY[curidx] = grididx
+             if(layer == self.layer_limit):
+                 dia_val += self.r_amb_reciprocal
+             self.cooData[curidx] = dia_val
+             curidx += 1
++
++        # --- Build CSC matrix ---
+         A_csc = csc_matrix(
+-            (self.cooData, (self.cooX, self.cooY)), shape=(self.size, self.size))
+-        nn = 0
+-        lu = sla.splu(A_csc, permc_spec='MMD_AT_PLUS_A', diag_pivot_thresh=0.001,
+-                      options=dict(Fact='DOFACT', Equil=False, SymmetricMode=True))
+-        x = lu.solve(self.b)
++            (self.cooData, (self.cooX, self.cooY)), shape=(self.size, self.size)
++        )
++
++        print("A shape:", A_csc.shape)
++        print("A nnz:", A_csc.nnz)
++        print("data dtype:", A_csc.data.dtype)
++        print("indices dtype:", A_csc.indices.dtype)
++        print("indptr dtype:", A_csc.indptr.dtype)
++
++        # --- SciPy SuperLU path (3-chiplet dataset generation) ---
++        # Direct sparse solve of the assembled system. Configuration matches
++        # the verified 3-chiplet feasibility run:
++        #   permc_spec=MMD_AT_PLUS_A, SymmetricMode=True, diag_pivot_thresh=0.001
++        import json as _json
++        import time as _time
++        import resource as _resource
++
++        _b = np.asarray(self.b, dtype=np.float64).ravel()
++        _t0 = _time.perf_counter()
++        _lu = sla.splu(A_csc, permc_spec="MMD_AT_PLUS_A",
++                       diag_pivot_thresh=0.001,
++                       options=dict(Fact="DOFACT", Equil=False,
++                                    SymmetricMode=True))
++        x = _lu.solve(_b)
++        _solve_s = _time.perf_counter() - _t0
++
++        if x.size != self.size:
++            raise RuntimeError("solution length mismatch: got %d, expected %d"
++                               % (x.size, self.size))
++
++        _r = _b - A_csc.dot(x)
++        _nb = float(np.linalg.norm(_b))
++        _stats = {
++            "backend": "scipy_splu",
++            "n": int(A_csc.shape[0]),
++            "nnz": int(A_csc.nnz),
++            "L_nnz": int(_lu.L.nnz),
++            "U_nnz": int(_lu.U.nnz),
++            "fill_ratio": (_lu.L.nnz + _lu.U.nnz) / float(A_csc.nnz),
++            "solve_s": _solve_s,
++            "rel_residual": float(np.linalg.norm(_r) / (_nb if _nb else 1.0)),
++            "peak_rss_gb": _resource.getrusage(
++                _resource.RUSAGE_SELF).ru_maxrss / 1048576.0,
++            "all_finite": bool(np.all(np.isfinite(x))),
++            "scipy_version": __import__("scipy").__version__,
++        }
++        _sp = os.environ.get("PACT3L_STATS")
++        if _sp:
++            try:
++                _json.dump(_stats, open(_sp, "w"), indent=2)
++            except Exception:
++                pass
++        print("PACT3L backend=scipy_splu solve=%.1fs rel_res=%.2e peak_rss=%.2fGB"
++              % (_solve_s, _stats["rel_residual"], _stats["peak_rss_gb"]))
++
+         reshape_x = x.reshape(self.nl, self.nr, self.nc)
+         return reshape_x
++

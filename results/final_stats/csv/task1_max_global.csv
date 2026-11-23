@@ -1,0 +1,5 @@
+effect,pair,metric,mean_a,mean_b,mean_diff,wilcoxon_stat,p_value,folds_same_direction,favours,significant_at_0p05
+residual target,A0 vs A1,"Max error (K), global",11.683969116210937,11.081579685211182,-0.6023894309997558,4.0,0.013671875,8,A1,True
+residual target,A2 vs Solo2Stack,"Max error (K), global",10.932928466796875,10.502262496948243,-0.4306659698486328,8.0,0.048828125,7,Solo2Stack,True
+solo input,A0 vs A2,"Max error (K), global",11.683969116210937,10.932928466796875,-0.7510406494140625,3.0,0.009765625,9,A2,True
+solo input,A1 vs Solo2Stack,"Max error (K), global",11.081579685211182,10.502262496948243,-0.5793171882629394,9.0,0.064453125,7,Solo2Stack,False

@@ -1,0 +1,6 @@
+# Running PACT itself.  Python 3.6 (3.6.8 was used); PACT does not support
+# newer SciPy's API changes, so this environment is deliberately old and kept
+# separate from requirements.txt.
+numpy==1.19.5
+scipy==1.5.4
+pandas==1.1.5

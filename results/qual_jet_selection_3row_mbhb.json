@@ -1,0 +1,87 @@
+{
+  "fold": 0,
+  "test_group": [
+    "group_01"
+  ],
+  "cv_dir": "<cv_dir>",
+  "base_dir": "<data_root>",
+  "bc_row": 4,
+  "candidate_pool_size": 400,
+  "picks": {
+    "rulematch": {
+      "sample_index": 5934,
+      "stack_id": "group_01_s0193_d1_chiplet251_d2_chiplet440_d3_chiplet408_d4_chiplet055_hybrid",
+      "technology": "hybrid",
+      "n_dies": 4,
+      "htc": 100000.0,
+      "bc_row": 4,
+      "stack_row": 386,
+      "selection": "median Solo2Stack pattern error among ALL held-out four-die stacks at bc_4 (the published rule, verbatim)",
+      "figure": "qual_jet_metrics_3row_mbhb_rulematch.pdf",
+      "row_order_top_to_bottom": [
+        "$D_4$",
+        "$I_{34}$",
+        "$D_1$"
+      ],
+      "layers_omitted_from_canvas": [
+        "$I_{12}$",
+        "$D_2$",
+        "$I_{23}$",
+        "$D_3$"
+      ],
+      "shared_scale": "per-row vmin/vmax from PACT reference field",
+      "annotation": "absolute cell-wise |T_hat - T_PACT|",
+      "per_panel": {
+        "0|A0": {
+          "abs_mae": 0.6508147120475769,
+          "abs_max": 2.32122802734375
+        },
+        "0|A1": {
+          "abs_mae": 0.3112694025039673,
+          "abs_max": 1.669342041015625
+        },
+        "0|A2": {
+          "abs_mae": 1.3956209421157837,
+          "abs_max": 2.71337890625
+        },
+        "0|A3": {
+          "abs_mae": 0.1759389489889145,
+          "abs_max": 1.044830322265625
+        },
+        "5|A0": {
+          "abs_mae": 1.225693941116333,
+          "abs_max": 3.814422607421875
+        },
+        "5|A1": {
+          "abs_mae": 0.6249830722808838,
+          "abs_max": 4.7423095703125
+        },
+        "5|A2": {
+          "abs_mae": 1.1966276168823242,
+          "abs_max": 4.388702392578125
+        },
+        "5|A3": {
+          "abs_mae": 0.425249844789505,
+          "abs_max": 4.00433349609375
+        },
+        "6|A0": {
+          "abs_mae": 1.1746875047683716,
+          "abs_max": 3.34222412109375
+        },
+        "6|A1": {
+          "abs_mae": 0.6059468984603882,
+          "abs_max": 3.19891357421875
+        },
+        "6|A2": {
+          "abs_mae": 1.0572913885116577,
+          "abs_max": 3.765533447265625
+        },
+        "6|A3": {
+          "abs_mae": 0.4149157702922821,
+          "abs_max": 2.684967041015625
+        }
+      }
+    },
+    "hybrid": "same as rulematch"
+  }
+}
